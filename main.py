@@ -1,29 +1,27 @@
 from dataclasses import dataclass
 from fastapi import FastAPI
-import httpx
 
 app = FastAPI()
 
+servers = {"nginx": True, "docker": False}
+
 
 @dataclass
-class User:
-    name: str
-    email: str
+class ServerStatusResponse:
+    server_name: str
+    server_status: str | bool
 
 
-@app.get("/")
-def hello_world():
-    "This is our main function"
-    return {"result": ["Hello World", 1, 2, True, None], "error": False}
+@app.get("/server")
+def get_server(server_name: str) -> ServerStatusResponse:
+    server_status = servers.get(server_name, "Does not exist")
+    return ServerStatusResponse(server_name, server_status)
 
 
-@app.get("/users")
-def get_users() -> list[User]:
-    response = httpx.get("https://jsonplaceholder.typicode.com/users")
-    users = response.json()
-    return users
-
-
-@app.post("/users")
-def create_user(new_user: User) -> bool:
-    return True
+@app.post("/server")
+def create_server(server_name: str) -> ServerStatusResponse:
+    if server_name in servers:
+        return ServerStatusResponse(server_name, "Name already exists")
+    else:
+        servers[server_name] = True
+        return ServerStatusResponse(server_name, "Created")
