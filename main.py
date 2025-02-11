@@ -1,15 +1,7 @@
-from dataclasses import dataclass
 from fastapi import FastAPI
+from models import ServerStatusResponse, Server
 
 app = FastAPI()
-
-servers = {"nginx": True, "docker": False}
-
-
-@dataclass
-class ServerStatusResponse:
-    server_name: str
-    server_status: str | bool
 
 
 @app.get("/server")
